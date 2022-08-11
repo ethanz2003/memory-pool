@@ -251,7 +251,8 @@ private:
   int totalMemory;
   int remainingMemory;
 };
-
+// Our alloc only creates 1 mem_pool; however if you choose to have multiple you can create an array 
+// and do new pool(totoalMemory/mem_pool.size())
 alloc::alloc(int memory) {
   // int memory is the total memory in bytes
   totalMemory = memory;
@@ -262,7 +263,7 @@ alloc::alloc(int memory) {
 alloc::~alloc(){
   delete mem_pool;
 }
-
+// the put function takes in a block of memory in BYTES
 void alloc::put(std::string key, int size, char *value) {
   /*
      Pairs the key and value together inside the memory pool and the map
