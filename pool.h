@@ -57,7 +57,9 @@ private:
 
 size_class::size_class(int val, int classMem) {
   /*
-      creates an instance of a size_class for the particular val
+    creates an instance of a size_class for the particular size of memory blocks
+    val: size of memory blocks for size_class
+    classMem: total amount of memory designated to this size_class
   */
   size = val;
   // determines the number of pages that a particular size class should have
@@ -108,9 +110,9 @@ std::vector<char *> size_class::copyLessThan(char *buffer, int memSize) {
       WE CALL THIS FUNCTION WHEN THE SIZE CLASS IS SMALLER OR EQUAL TO
       THE EXTERNAL MEMORY
       buffer: is the location of key's memory address in the external memory
-      returns a vector of page(s)
       pool: is the location that we store the data from the buffer
       memSize: is the size of the memory we are storing
+      returns a vector of page(s)
   */
   std::vector<char *> ret;
   
@@ -131,9 +133,9 @@ std::vector<char *> size_class::copyGreaterThan(char *buffer, int memSize) {
      THE EXTERNAL MEMORY
      THEREFORE WE WILL NEED MORE THAN ONE MEMORY BLOCK TO COPY THE DATA
      buffer: is the location of key's memory address in the external memory
-     returns an array of void pointers
      pool: is the location that we store the data from the buffer
      memSize: is the size of the memory we are storing
+     returns an array of void pointers
  */
   std::vector<char *> ret;
   int num = ceil(memSize / size);
@@ -163,7 +165,7 @@ void size_class::delete_page(std::vector<char *> memoryAddress) {
       erases that memory pointer from the full list (page_list[1]) and allocates
       pointer to the empty list (page_list[0])
       memoryAddress: is the location of the key's memory address that we want to
-     delete in our system
+      delete in our system
   */
 
   auto list_itr = page_list[1].begin();
@@ -215,7 +217,7 @@ public:
 
 pool::pool(int totalMemory) {
   /*
-  totalMemory:
+  totalMemory: total amount of memory designated to the pool
   */
   int classMem = totalMemory / sizeValues.size();
   std::sort(sizeValues.begin(), sizeValues.end());
@@ -234,7 +236,8 @@ pool::~pool(){
 
 int pool::getSizeIndex(int size) {
   /*
-  size:
+  Binary Search function to find the index of our size class.
+  size: size of memory blocks in a size_class
   */
   
   int low = 0, high = sizeValues.size() - 1;
@@ -296,9 +299,9 @@ void alloc::put(std::string key, int size, char *value) {
      reference the block of memory size: is the size of the block of memory the
      user wants us to copy value: is the pointer to the block of memory in the
      user's interface
-     key:
-     size:
-     value:
+     key: is the user's reference to the inputted block of memory
+     size: the size of the inputted block of memory
+     value: the pointer to the inputted bloc of memory
   */
 
   std::vector<char *> memoryAddress;
@@ -333,10 +336,11 @@ void alloc::put(std::string key, int size, char *value) {
 int alloc::determineSizeClass(int index, int size, bool iter) {
   /*
   Finds the index of the size_class corresponding to the given size
-  size: is the original inputted memory size that the user wanted to check was
-  available index: is the location of the original size
-  index:
-  iter:
+  
+  index: is the index of the original size within the sizeValues array
+  size: is the inputted memory size that the user wanted to check was
+  available 
+  iter: checks that you are not iterating through the loop a second time
   */
 
   int i = mem_pool->getSizeIndex(size);
@@ -368,8 +372,8 @@ int alloc::determineSizeClass(int index, int size, bool iter) {
 
 void alloc::get(std::string key, char *buffer) {
   /*
-  key:
-  buffer:
+  key: string associated with previously 'put' memory
+  buffer: user inputted pointer which is used to copy memory into
   */
   
   transfer(keys[key], buffer, index[key]);
@@ -377,7 +381,7 @@ void alloc::get(std::string key, char *buffer) {
 
 void alloc::del(std::string key) {
   /*
-  key:
+  key: string associated with previously 'put' memory
   */
   this->mem_pool->classes[index[key]]->delete_page(keys[key]);
   for(void* ptr: keys[key]){
