@@ -1,4 +1,4 @@
 # memory-pool
 
 
-This is a user-space in-memory object that mimics the zsmalloc memory management approach 
+This is a user-space in-memory object that uses data structures similar to zsmalloc 
