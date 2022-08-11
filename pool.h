@@ -248,11 +248,7 @@ private:
   std::unordered_map<std::string, std::vector<char *>> keys;
   std::unordered_map<std::string, int> index;
   pool * mem_pool;
-  int totalMemory; // let's assume we need 10% of the memory for data structure
-                   // 1GB =1000000 KB this means
-  // we have 250000 pages per GB AKA 32 million pages
-  // we should make this dependent on the different possible page sizes that we
-  // need
+  int totalMemory;
   int remainingMemory;
 };
 
@@ -375,9 +371,3 @@ void alloc::transfer(std::vector<char *> &memoryAddress, char *buffer,
 }
 
 #endif
-
-int main() {
-  alloc mal(1);
-  std::cout << "ggez" << std::endl;
-  return 0;
-}
