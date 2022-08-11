@@ -35,8 +35,7 @@ class size_class {
 public:
   /* Member variables */
 
-  std::vector<std::list<char *>>
-      page_list; // this will contain 4kb blocks of memory linked together
+  std::vector<std::list<char *>> page_list; // this will contain 4kb blocks of memory linked together
 
   size_class(int val, int classMem); // constructor for the specific Memory size
   ~size_class();
@@ -58,6 +57,7 @@ private:
 size_class::size_class(int val, int classMem) {
   /*
     creates an instance of a size_class for the particular size of memory blocks
+    
     val: size of memory blocks for size_class
     classMem: total amount of memory designated to this size_class
   */
@@ -70,6 +70,9 @@ size_class::size_class(int val, int classMem) {
 }
 
 size_class::~size_class(){
+  /*
+  size_class destructor
+  */
   auto it = page_list[0].begin();
   while(!page_list[0].empty()){
     free(*it);
@@ -85,10 +88,11 @@ size_class::~size_class(){
 std::vector<char *> size_class::insert_page(char *buffer, int memSize) {
 
   /* 
-     Inserts a copied pointer to memory into our page list
-     Returns a vector of page(s) pointer
-     buffer: pointer to inserted memory
-     memSize: size of the object we want to store
+   Inserts a copied pointer to memory into our page list
+
+   buffer: pointer to inserted memory
+   memSize: size of the object we want to store
+   Returns a vector of page(s) pointer
   */
 
   // transfer the memory to current system
@@ -106,13 +110,14 @@ std::vector<char *> size_class::insert_page(char *buffer, int memSize) {
 
 std::vector<char *> size_class::copyLessThan(char *buffer, int memSize) {
   /*
-      transfers value's memory block to the zspool memory
-      WE CALL THIS FUNCTION WHEN THE SIZE CLASS IS SMALLER OR EQUAL TO
-      THE EXTERNAL MEMORY
-      buffer: is the location of key's memory address in the external memory
-      pool: is the location that we store the data from the buffer
-      memSize: is the size of the memory we are storing
-      returns a vector of page(s)
+    transfers value's memory block to the zspool memory
+    WE CALL THIS FUNCTION WHEN THE SIZE CLASS IS SMALLER OR EQUAL TO
+    THE EXTERNAL MEMORY
+
+    buffer: is the location of key's memory address in the external memory
+    pool: is the location that we store the data from the buffer
+    memSize: is the size of the memory we are storing
+    returns a vector of page(s)
   */
   std::vector<char *> ret;
   
@@ -128,14 +133,15 @@ std::vector<char *> size_class::copyLessThan(char *buffer, int memSize) {
 }
 std::vector<char *> size_class::copyGreaterThan(char *buffer, int memSize) {
   /*
-     transfers value's memory block to the zspool memory
-     WE CALL THIS FUNCTION WHEN THE SIZE CLASS IS GREATER THAN
-     THE EXTERNAL MEMORY
-     THEREFORE WE WILL NEED MORE THAN ONE MEMORY BLOCK TO COPY THE DATA
-     buffer: is the location of key's memory address in the external memory
-     pool: is the location that we store the data from the buffer
-     memSize: is the size of the memory we are storing
-     returns an array of void pointers
+   transfers value's memory block to the zspool memory
+   WE CALL THIS FUNCTION WHEN THE SIZE CLASS IS GREATER THAN
+   THE EXTERNAL MEMORY
+   THEREFORE WE WILL NEED MORE THAN ONE MEMORY BLOCK TO COPY THE DATA
+
+   buffer: is the location of key's memory address in the external memory
+   pool: is the location that we store the data from the buffer
+   memSize: is the size of the memory we are storing
+   returns an array of void pointers
  */
   std::vector<char *> ret;
   int num = ceil(memSize / size);
@@ -161,11 +167,12 @@ std::vector<char *> size_class::copyGreaterThan(char *buffer, int memSize) {
 
 void size_class::delete_page(std::vector<char *> memoryAddress) {
   /*
-      find the element in list that has the size memory address as memoryAddress
-      erases that memory pointer from the full list (page_list[1]) and allocates
-      pointer to the empty list (page_list[0])
-      memoryAddress: is the location of the key's memory address that we want to
-      delete in our system
+    find the element in list that has the size memory address as memoryAddress
+    erases that memory pointer from the full list (page_list[1]) and allocates
+    pointer to the empty list (page_list[0])
+
+    memoryAddress: is the location of the key's memory address that we want to
+    delete in our system
   */
 
   auto list_itr = page_list[1].begin();
@@ -186,10 +193,11 @@ void size_class::delete_page(std::vector<char *> memoryAddress) {
 
 void size_class::createMemBlocks(std::vector<std::list<char *>> page_list) {
   /*
-      we want to partition numOfPages amount of memory block in our system
-      and add the pointer to these memory address into our empty page_list[0]
-      to indicate that these memory blocks are not in use
-      page_list: is an array of linkedlist
+    we want to partition numOfPages amount of memory block in our system
+    and add the pointer to these memory address into our empty page_list[0]
+    to indicate that these memory blocks are not in use
+
+    page_list: is an array of linkedlist
   */
 
   for (int i = 0; i < numofPages; i++) {
@@ -217,7 +225,9 @@ public:
 
 pool::pool(int totalMemory) {
   /*
-  totalMemory: total amount of memory designated to the pool
+    Instantiates the pool object
+
+    totalMemory: total amount of memory designated to the pool
   */
   int classMem = totalMemory / sizeValues.size();
   std::sort(sizeValues.begin(), sizeValues.end());
@@ -228,6 +238,10 @@ pool::pool(int totalMemory) {
 }
 
 pool::~pool(){
+  /*
+  destructor for the pool
+  */
+  
   for(int i = 0; i < (int)sizeValues.size(); i++){
     delete classes[i];
   }
@@ -236,8 +250,9 @@ pool::~pool(){
 
 int pool::getSizeIndex(int size) {
   /*
-  Binary Search function to find the index of our size class.
-  size: size of memory blocks in a size_class
+    Binary Search function to find the index of our size class.
+
+    size: size of memory blocks in a size_class
   */
   
   int low = 0, high = sizeValues.size() - 1;
@@ -280,13 +295,21 @@ private:
 };
 
 alloc::alloc(int memory) {
-  /* int memory is the total memory in bytes*/
+  /* 
+    instantiates an alloc object
+
+    memory: the total memory in bytes
+  */
   totalMemory = memory;
   remainingMemory = memory;
   mem_pool = new pool(totalMemory);
 }
 
 alloc::~alloc(){
+  /*
+    the destructor for the alloc object
+  */
+  
   delete mem_pool;
 }
 // the put function takes in a block of memory in BYTES
@@ -335,12 +358,12 @@ void alloc::put(std::string key, int size, char *value) {
 
 int alloc::determineSizeClass(int index, int size, bool iter) {
   /*
-  Finds the index of the size_class corresponding to the given size
-  
-  index: is the index of the original size within the sizeValues array
-  size: is the inputted memory size that the user wanted to check was
-  available 
-  iter: checks that you are not iterating through the loop a second time
+    Finds the index of the size_class corresponding to the given size
+
+    index: is the index of the original size within the sizeValues array
+    size: is the inputted memory size that the user wanted to check was
+    available 
+    iter: checks that you are not iterating through the loop a second time
   */
 
   int i = mem_pool->getSizeIndex(size);
@@ -372,8 +395,8 @@ int alloc::determineSizeClass(int index, int size, bool iter) {
 
 void alloc::get(std::string key, char *buffer) {
   /*
-  key: string associated with previously 'put' memory
-  buffer: user inputted pointer which is used to copy memory into
+    key: string associated with previously 'put' memory
+    buffer: user inputted pointer which is used to copy memory into
   */
   
   transfer(keys[key], buffer, index[key]);
@@ -381,7 +404,7 @@ void alloc::get(std::string key, char *buffer) {
 
 void alloc::del(std::string key) {
   /*
-  key: string associated with previously 'put' memory
+    key: string associated with previously 'put' memory
   */
   this->mem_pool->classes[index[key]]->delete_page(keys[key]);
   for(void* ptr: keys[key]){
@@ -394,13 +417,13 @@ void alloc::del(std::string key) {
 void alloc::transfer(std::vector<char *> &memoryAddress, char *buffer,
                         int index) {
   /*
-      Is the reverse of copy
-      The purpose of this function is to transfer the objects in
-      our memory space into the user's memory space
-      memoryAddress: is the location of the memory that the user wants
-      copied into their memory space
-      buffer: is the memory address of the user
-      size: is the index of the size class
+    Is the reverse of copy
+    The purpose of this function is to transfer the objects in
+    our memory space into the user's memory space
+    memoryAddress: is the location of the memory that the user wants
+    copied into their memory space
+    buffer: is the memory address of the user
+    size: is the index of the size class
   */
 
   int sizeC = mem_pool->getSize(index);
