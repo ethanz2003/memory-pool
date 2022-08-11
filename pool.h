@@ -11,8 +11,6 @@ For the user to use this memory pool, they will need to provide the size in byte
 instantiate an alloc object. Afterwards, they can call the 'put' function to insert a block of memory. 
 The 'get' function to retrieve the allocated block of memory. And 'delete' to erase the allocated block 
 of memory.
-
-
 */
 
 #ifndef _classes_h_
