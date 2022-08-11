@@ -1,3 +1,20 @@
+/*
+There are multiple functions that can be changed depending on the needs of the user needs.
+For example, if the user knows the range of the memory block size they will be inserting into this 
+memory pool, they can edit the sizeValues vector in the pool class. This will reduce 
+internal fragmentation. Additionally, our system can only accept one type of pointers which is char*, 
+thus if the blocks of memory all contain a single different type, you can edit the pointers to be of that type.
+Lastly, many of our algorithms and data structures are from the std library, which means they are intended for 
+more generic purposes and are not optimized for speed and memory efficiency.
+
+For the user to use this memory pool, they will need to provide the size in bytes of the memory to 
+instantiate an alloc object. Afterwards, they can call the 'put' function to insert a block of memory. 
+The 'get' function to retrieve the allocated block of memory. And 'delete' to erase the allocated block 
+of memory.
+
+
+*/
+
 #ifndef _classes_h_
 #define _classes_h_
 
@@ -197,6 +214,9 @@ public:
 };
 
 pool::pool(int totalMemory) {
+  /*
+  totalMemory:
+  */
   int classMem = totalMemory / sizeValues.size();
   std::sort(sizeValues.begin(), sizeValues.end());
   for (int i = 1; i <= (int)sizeValues.size(); i++) {
@@ -213,6 +233,10 @@ pool::~pool(){
 }
 
 int pool::getSizeIndex(int size) {
+  /*
+  size:
+  */
+  
   int low = 0, high = sizeValues.size() - 1;
   int mid;
   while (low <= high) {
@@ -251,10 +275,9 @@ private:
   int totalMemory;
   int remainingMemory;
 };
-// Our alloc only creates 1 mem_pool; however if you choose to have multiple you can create an array 
-// and do new pool(totalMemory/mem_pool.size() [the size of the array] )
+
 alloc::alloc(int memory) {
-  // int memory is the total memory in bytes
+  /* int memory is the total memory in bytes*/
   totalMemory = memory;
   remainingMemory = memory;
   mem_pool = new pool(totalMemory);
@@ -273,6 +296,9 @@ void alloc::put(std::string key, int size, char *value) {
      reference the block of memory size: is the size of the block of memory the
      user wants us to copy value: is the pointer to the block of memory in the
      user's interface
+     key:
+     size:
+     value:
   */
 
   std::vector<char *> memoryAddress;
@@ -309,6 +335,8 @@ int alloc::determineSizeClass(int index, int size, bool iter) {
   Finds the index of the size_class corresponding to the given size
   size: is the original inputted memory size that the user wanted to check was
   available index: is the location of the original size
+  index:
+  iter:
   */
 
   int i = mem_pool->getSizeIndex(size);
@@ -339,10 +367,18 @@ int alloc::determineSizeClass(int index, int size, bool iter) {
 }
 
 void alloc::get(std::string key, char *buffer) {
+  /*
+  key:
+  buffer:
+  */
+  
   transfer(keys[key], buffer, index[key]);
 }
 
 void alloc::del(std::string key) {
+  /*
+  key:
+  */
   this->mem_pool->classes[index[key]]->delete_page(keys[key]);
   for(void* ptr: keys[key]){
     std::memset(ptr, 0, mem_pool->getSize(index[key]));
