@@ -1,5 +1,5 @@
-#ifndef _pool_h_
-#define _pool_h_
+#ifndef _classes_h_
+#define _classes_h_
 
 #include <algorithm>
 #include <cmath>
@@ -7,7 +7,6 @@
 #include <fstream>
 #include <iostream>
 #include <list>
-#include <map>
 #include <string>
 #include <cstring>
 #include <unordered_map>
@@ -19,7 +18,7 @@ class size_class {
 public:
   /* Member variables */
 
-  std::vector<std::list<void *>>
+  std::vector<std::list<char *>>
       page_list; // this will contain 4kb blocks of memory linked together
 
   size_class(int val, int classMem); // constructor for the specific Memory size
@@ -27,14 +26,14 @@ public:
 
   size_class &operator=(const size_class &old);
 
-  std::vector<void *> insert_page(void *value, int memSize);
-  void delete_page(std::vector<void *> memoryAddress);
+  std::vector<char *> insert_page(char *value, int memSize);
+  void delete_page(std::vector<char *> memoryAddress);
 
 private:
   void createMemBlocks(
-  std::vector<std::list<void *> > page_list); // partitions the memory
-  std::vector<void *> copyLessThan(void *buffer, int memSize);
-  std::vector<void *> copyGreaterThan(void *buffer, int memSize);
+  std::vector<std::list<char *> > page_list); // partitions the memory
+  std::vector<char *> copyLessThan(char *buffer, int memSize);
+  std::vector<char *> copyGreaterThan(char *buffer, int memSize);
   int size;       // this is the size of the pages depends on the index
   int numofPages; // this is how many pages of the specific size we need
 };
@@ -47,7 +46,7 @@ size_class::size_class(int val, int classMem) {
   // determines the number of pages that a particular size class should have
   numofPages = (classMem / val);
 
-  page_list = std::vector<std::list<void *>>(2);
+  page_list = std::vector<std::list<char *>>(2);
   createMemBlocks(page_list);
 }
 
@@ -64,7 +63,7 @@ size_class::~size_class(){
   }
 }
 
-std::vector<void *> size_class::insert_page(void *buffer, int memSize) {
+std::vector<char *> size_class::insert_page(char *buffer, int memSize) {
 
   /* 
      Inserts a copied pointer to memory into our page list
@@ -86,7 +85,7 @@ std::vector<void *> size_class::insert_page(void *buffer, int memSize) {
   }
 }
 
-std::vector<void *> size_class::copyLessThan(void *buffer, int memSize) {
+std::vector<char *> size_class::copyLessThan(char *buffer, int memSize) {
   /*
       transfers value's memory block to the zspool memory
       WE CALL THIS FUNCTION WHEN THE SIZE CLASS IS SMALLER OR EQUAL TO
@@ -96,7 +95,7 @@ std::vector<void *> size_class::copyLessThan(void *buffer, int memSize) {
       pool: is the location that we store the data from the buffer
       memSize: is the size of the memory we are storing
   */
-  std::vector<void *> ret;
+  std::vector<char *> ret;
   
   // copy memory between buffer and pool
   std::copy( (char*) buffer, (char*) buffer + memSize, page_list[0].front());
@@ -108,7 +107,7 @@ std::vector<void *> size_class::copyLessThan(void *buffer, int memSize) {
 
   return ret;
 }
-std::vector<void *> size_class::copyGreaterThan(void *buffer, int memSize) {
+std::vector<char *> size_class::copyGreaterThan(char *buffer, int memSize) {
   /*
      transfers value's memory block to the zspool memory
      WE CALL THIS FUNCTION WHEN THE SIZE CLASS IS GREATER THAN
@@ -119,7 +118,7 @@ std::vector<void *> size_class::copyGreaterThan(void *buffer, int memSize) {
      pool: is the location that we store the data from the buffer
      memSize: is the size of the memory we are storing
  */
-  std::vector<void *> ret;
+  std::vector<char *> ret;
   int num = ceil(memSize / size);
 
   int start = 0;
@@ -141,7 +140,7 @@ std::vector<void *> size_class::copyGreaterThan(void *buffer, int memSize) {
   return ret;
 }
 
-void size_class::delete_page(std::vector<void *> memoryAddress) {
+void size_class::delete_page(std::vector<char *> memoryAddress) {
   /*
       find the element in list that has the size memory address as memoryAddress
       erases that memory pointer from the full list (page_list[1]) and allocates
@@ -151,7 +150,6 @@ void size_class::delete_page(std::vector<void *> memoryAddress) {
   */
 
   auto list_itr = page_list[1].begin();
-  void *page;
   int count = memoryAddress.size();
   while (list_itr != page_list[1].end()) {
     if (*list_itr == memoryAddress[0]) {
@@ -167,7 +165,7 @@ void size_class::delete_page(std::vector<void *> memoryAddress) {
   }
 }
 
-void size_class::createMemBlocks(std::vector<std::list<void *>> page_list) {
+void size_class::createMemBlocks(std::vector<std::list<char *>> page_list) {
   /*
       we want to partition numOfPages amount of memory block in our system
       and add the pointer to these memory address into our empty page_list[0]
@@ -177,7 +175,7 @@ void size_class::createMemBlocks(std::vector<std::list<void *>> page_list) {
 
   for (int i = 0; i < numofPages; i++) {
     // method that determines the size of the page depending on size_Class index
-    void *page = std::malloc(size); // still an issue with call to calloc
+    char *page = (char*) std::malloc(size); // still an issue with call to calloc
     page_list[0].push_back(page);
   }
 }
@@ -201,14 +199,14 @@ public:
 pool::pool(int totalMemory) {
   int classMem = totalMemory / sizeValues.size();
   std::sort(sizeValues.begin(), sizeValues.end());
-  for (int i = 1; i <= sizeValues.size(); i++) {
+  for (int i = 1; i <= (int)sizeValues.size(); i++) {
     classes[i - 1] =
-        new size_class(i, sizeValues[i - 1]); // glasses = [->sc1, ->sc2, ->sc3]
+        new size_class(sizeValues[i - 1], classMem); // glasses = [->sc1, ->sc2, ->sc3]
   }
 }
 
 pool::~pool(){
-  for(int i = 0; i < sizeValues.size(); i++){
+  for(int i = 0; i < (int)sizeValues.size(); i++){
     delete classes[i];
   }
   delete[] classes;
@@ -232,24 +230,24 @@ int pool::getSizeIndex(int size) {
 
 // HASHMAP FOR SIZES THE VALUE IS AN INDEX NOT THE SIZE OF THE CLASS change name
 // to be easier
-class zsmalloc {
+class alloc {
 public:
   int getRemainingMem() { return remainingMemory; }
 
-  zsmalloc(int totalMemory); // constructor
-  ~zsmalloc();
+  alloc(int totalMemory); // constructor
+  ~alloc();
 
   // Main Methods
-  void put(std::string, int size, void *value);
-  void get(std::string key, void *buffer);
+  void put(std::string, int size, char *value);
+  void get(std::string key, char *buffer);
   void del(std::string key);
-  void transfer(std::vector<void *> &memoryAddress, void *buffer, int size);
+  void transfer(std::vector<char *> &memoryAddress, char *buffer, int size);
   int determineSizeClass(int index, int size, bool iter);
 
 private:
-  std::unordered_map<std::string, std::vector<void *>> keys;
+  std::unordered_map<std::string, std::vector<char *>> keys;
   std::unordered_map<std::string, int> index;
-  pool * zs_pool;
+  pool * mem_pool;
   int totalMemory; // let's assume we need 10% of the memory for data structure
                    // 1GB =1000000 KB this means
   // we have 250000 pages per GB AKA 32 million pages
@@ -258,17 +256,18 @@ private:
   int remainingMemory;
 };
 
-zsmalloc::zsmalloc(int memory) {
+alloc::alloc(int memory) {
+  // int memory is the total memory in bytes
   totalMemory = memory;
   remainingMemory = memory;
-  zs_pool = new pool(totalMemory);
+  mem_pool = new pool(totalMemory);
 }
 
-zsmalloc::~zsmalloc(){
-  delete zs_pool;
+alloc::~alloc(){
+  delete mem_pool;
 }
 
-void zsmalloc::put(std::string key, int size, void *value) {
+void alloc::put(std::string key, int size, char *value) {
   /*
      Pairs the key and value together inside the memory pool and the map
      Locates the correct size class index within the pool to insert the memory
@@ -279,18 +278,18 @@ void zsmalloc::put(std::string key, int size, void *value) {
      user's interface
   */
 
-  std::vector<void *> memoryAddress;
+  std::vector<char *> memoryAddress;
   int sizeC; // this will hold the index of whatever SizeClass it'll belong to
 
   // determines a prepartition sizeClass that can hold the memory
   int optimalSize = 0;
-  for (int i; i < zs_pool->sizeValues.size(); i++) {
-    if (zs_pool->sizeValues[i] >= size) {
-      optimalSize = zs_pool->sizeValues[i];
+  for (int i = 0; i < (int)mem_pool->sizeValues.size(); i++) {
+    if (mem_pool->sizeValues[i] >= size) {
+      optimalSize = mem_pool->sizeValues[i];
       break;
     }
   }
-  int i = zs_pool->getSizeIndex(size);
+  int i = mem_pool->getSizeIndex(size);
   if (remainingMemory > optimalSize) {
     sizeC = determineSizeClass(i, optimalSize, true);
     // this is the index of the size class it will be place in
@@ -298,33 +297,33 @@ void zsmalloc::put(std::string key, int size, void *value) {
     sizeC = -1;
   }
   if (sizeC == -1) {
-    std::cout << "I'm full!! >.< \nLove,\nMemory Pool" << std::endl;
+    std::cout << "Memory Pool is full." << std::endl;
     return;
   }
-  memoryAddress = this->zs_pool->classes[sizeC]->insert_page(
-      value, zs_pool->sizeValues[sizeC - 1]);
+  memoryAddress = this->mem_pool->classes[sizeC]->insert_page(
+      value, mem_pool->sizeValues[sizeC - 1]);
 
   keys.insert(make_pair(key, memoryAddress));
   index.insert(make_pair(key, sizeC));
 }
 
-int zsmalloc::determineSizeClass(int index, int size, bool iter) {
+int alloc::determineSizeClass(int index, int size, bool iter) {
   /*
   Finds the index of the size_class corresponding to the given size
   size: is the original inputted memory size that the user wanted to check was
   available index: is the location of the original size
   */
 
-  int i = zs_pool->getSizeIndex(size);
-  int originalSize = zs_pool->sizeValues[index];
+  int i = mem_pool->getSizeIndex(size);
+  int originalSize = mem_pool->sizeValues[index];
 
   // page_list[0] is not empty
-  if (index >= i && !this->zs_pool->classes[i]->page_list[0].empty()) {
+  if (index >= i && !this->mem_pool->classes[i]->page_list[0].empty()) {
     return i;
   }
   // if the page is smaller, checks that there is enough small pages to fit the
   // block of memory
-  else if (this->zs_pool->classes[i]->page_list[0].size() >
+  else if (this->mem_pool->classes[i]->page_list[0].size() >
            ceil(originalSize / size)) {
     return i;
   }
@@ -333,7 +332,7 @@ int zsmalloc::determineSizeClass(int index, int size, bool iter) {
     return -1;
   }
 
-  if (zs_pool->sizeValues.size() - 1 > index) {
+  if ((int)mem_pool->sizeValues.size() - 1 > index) {
     return this->determineSizeClass(i + 1, size, false);
   } else {
     return this->determineSizeClass(0, size, false);
@@ -342,20 +341,20 @@ int zsmalloc::determineSizeClass(int index, int size, bool iter) {
   return -1; // shouldn't reach this return
 }
 
-void zsmalloc::get(std::string key, void *buffer) {
+void alloc::get(std::string key, char *buffer) {
   transfer(keys[key], buffer, index[key]);
 }
 
-void zsmalloc::del(std::string key) {
-  this->zs_pool->classes[index[key]]->delete_page(keys[key]);
+void alloc::del(std::string key) {
+  this->mem_pool->classes[index[key]]->delete_page(keys[key]);
   for(void* ptr: keys[key]){
-    std::memset(ptr, 0, zs_pool->getSize(index[key]));
+    std::memset(ptr, 0, mem_pool->getSize(index[key]));
   }
   keys.erase(key);
   index.erase(key);
 }
 
-void zsmalloc::transfer(std::vector<void *> &memoryAddress, void *buffer,
+void alloc::transfer(std::vector<char *> &memoryAddress, char *buffer,
                         int index) {
   /*
       Is the reverse of copy
@@ -367,12 +366,18 @@ void zsmalloc::transfer(std::vector<void *> &memoryAddress, void *buffer,
       size: is the index of the size class
   */
 
-  int sizeC = zs_pool->getSize(index);
+  int sizeC = mem_pool->getSize(index);
   int count = 0;
-  for (int i = 0; i < memoryAddress.size(); i++) {
+  for (int i = 0; i < (int)memoryAddress.size(); i++) {
     std::copy( (char*) memoryAddress[i], (char*) memoryAddress[i] + sizeC, (char*) buffer + count);
     count += sizeC;
   }
 }
 
 #endif
+
+int main() {
+  alloc mal(1);
+  std::cout << "ggez" << std::endl;
+  return 0;
+}
