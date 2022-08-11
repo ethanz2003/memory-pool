@@ -252,7 +252,7 @@ private:
   int remainingMemory;
 };
 // Our alloc only creates 1 mem_pool; however if you choose to have multiple you can create an array 
-// and do new pool(totoalMemory/mem_pool.size())
+// and do new pool(totalMemory/mem_pool.size() [the size of the array] )
 alloc::alloc(int memory) {
   // int memory is the total memory in bytes
   totalMemory = memory;
