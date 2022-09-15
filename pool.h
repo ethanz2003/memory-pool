@@ -13,8 +13,8 @@ The 'get' function to retrieve the allocated block of memory. And 'delete' to er
 of memory.
 */
 
-#ifndef _classes_h_
-#define _classes_h_
+#ifndef _pool_h_
+#define _pool_h_
 
 #include <algorithm>
 #include <cmath>
