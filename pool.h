@@ -44,12 +44,11 @@ public:
   void delete_page(std::vector<char *> memoryAddress);
 
 private:
-  void createMemBlocks(
-  std::vector<std::list<char *> > page_list); // partitions the memory
+  void createMemBlocks(std::vector<std::list<char *> > page_list);
   std::vector<char *> copyLessThan(char *buffer, int memSize);
   std::vector<char *> copyGreaterThan(char *buffer, int memSize);
-  int size;       // this is the size of the pages depends on the index
-  int numofPages; // this is how many pages of the specific size we need
+  int size;       // size of the pages depends on the index
+  int numofPages; // amount of pages of size we need
 };
 
 size_class::size_class(int val, int classMem) {
